@@ -1,78 +1,274 @@
 <!DOCTYPE html>
-<!-- Coding By CodingNepal - youtube.com/@codingnepal -->
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gemini Chatbot | CodingNepal</title>
-  <!-- Linking Google Fonts For Icons -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@32,400,0,0" />
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DTZ NOVA AI</title>
+
+<link rel="stylesheet"
+ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded">
+
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Poppins:wght@400;500&display=swap");
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: radial-gradient(circle at top, #0a1a2f, transparent),
+              linear-gradient(180deg, #02040a, #05070f);
+  color:#e8faff;
+  font-family:Poppins, sans-serif;
+  overflow:hidden;
+}
+
+/* ================= BOOT SCREEN ================= */
+.boot-screen {
+  position:fixed;
+  inset:0;
+  background:#02040a;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+  animation:bootFade 1s ease forwards;
+  animation-delay:3.5s;
+}
+
+@keyframes bootFade {
+  to { opacity:0; visibility:hidden; }
+}
+
+.boot-logo {
+  font-family:Orbitron;
+  font-size:3rem;
+  color:#00f6ff;
+  text-shadow:0 0 30px #00f6ff;
+  animation:pulse 1.5s infinite;
+}
+
+.boot-text {
+  margin-top:15px;
+  font-size:0.9rem;
+  color:#7de7ff;
+  letter-spacing:2px;
+}
+
+@keyframes pulse {
+  0%,100% { opacity:1; }
+  50% { opacity:0.4; }
+}
+
+/* ================= MAIN ================= */
+.container {
+  height:calc(100vh - 120px);
+  overflow-y:auto;
+  padding-bottom:140px;
+}
+
+/* HEADER */
+.app-header {
+  text-align:center;
+  padding:60px 20px 40px;
+}
+
+.heading {
+  font-family:Orbitron;
+  font-size:3.4rem;
+  letter-spacing:2px;
+  background:linear-gradient(90deg,#00f6ff,#8a7bff);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-shadow:0 0 25px rgba(0,246,255,0.7);
+  animation:neonFlicker 3s infinite;
+}
+
+@keyframes neonFlicker {
+  0%,100% { opacity:1; }
+  50% { opacity:0.85; }
+}
+
+.sub-heading {
+  margin-top:12px;
+  font-size:1rem;
+  color:#7de7ff;
+}
+.sub-heading span { color:#00f6ff; }
+
+/* ================= SUGGESTIONS ================= */
+.suggestions {
+  display:flex;
+  gap:18px;
+  padding:20px;
+  list-style:none;
+  overflow-x:auto;
+}
+
+.suggestions-item {
+  min-width:230px;
+  padding:20px;
+  border-radius:14px;
+  background:rgba(0,255,255,0.08);
+  border:1px solid rgba(0,246,255,0.25);
+  backdrop-filter:blur(14px);
+  cursor:pointer;
+  transition:.3s;
+}
+.suggestions-item:hover {
+  transform:translateY(-6px);
+  box-shadow:0 0 25px rgba(0,246,255,0.5);
+}
+
+/* ================= CHAT ================= */
+.chats-container {
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  padding:20px;
+}
+
+.message { display:flex; gap:12px; }
+
+/* 🤖 CUSTOM NOVA AVATAR */
+.avatar {
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:radial-gradient(circle,#00f6ff,#02040a);
+  box-shadow:0 0 20px #00f6ff;
+  position:relative;
+}
+.avatar::after {
+  content:"";
+  position:absolute;
+  inset:10px;
+  border-radius:50%;
+  background:#02040a;
+}
+
+.user-message {
+  flex-direction:column;
+  align-items:flex-end;
+}
+.user-message .message-text {
+  background:linear-gradient(135deg,#00f6ff,#8a7bff);
+  color:#02040a;
+  padding:12px 16px;
+  border-radius:16px 16px 4px 16px;
+  max-width:75%;
+}
+
+/* ================= PROMPT ================= */
+.prompt-container {
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:linear-gradient(to top,#05070f,transparent);
+  padding:16px;
+}
+
+.prompt-wrapper {
+  max-width:960px;
+  margin:auto;
+  display:flex;
+  gap:10px;
+}
+
+.prompt-form {
+  flex:1;
+  display:flex;
+  align-items:center;
+  background:rgba(0,255,255,0.08);
+  border-radius:999px;
+  border:1px solid rgba(0,246,255,0.3);
+  backdrop-filter:blur(10px);
+}
+
+.prompt-input {
+  flex:1;
+  background:none;
+  border:none;
+  outline:none;
+  color:#e8faff;
+  padding:16px;
+}
+
+.prompt-wrapper button {
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  border:none;
+  background:rgba(0,255,255,0.15);
+  color:#e8faff;
+  cursor:pointer;
+}
+#send-prompt-btn {
+  background:linear-gradient(135deg,#00f6ff,#8a7bff);
+  color:#02040a;
+}
+
+.disclaimer-text {
+  text-align:center;
+  margin-top:10px;
+  font-size:.85rem;
+  color:#7de7ff;
+}
+
+@media(max-width:768px){
+  .heading{font-size:2.4rem;}
+}
+</style>
 </head>
 
 <body>
-  <div class="container">
-    <!-- App Header -->
-    <header class="app-header">
-      <h1 class="heading">Hello, there</h1>
-      <h4 class="sub-heading">How can I help you today?</h4>
-    </header>
-    
-    <!-- Suggestions List -->
-    <ul class="suggestions">
-      <li class="suggestions-item">
-        <p class="text">Design a home office setup for remote work under $500.</p>
-        <span class="icon material-symbols-rounded">draw</span>
-      </li>
-      <li class="suggestions-item">
-        <p class="text">How can I level up my web development expertise in 2025?</p>
-        <span class="icon material-symbols-rounded">lightbulb</span>
-      </li>
-      <li class="suggestions-item">
-        <p class="text">Suggest some useful tools for debugging JavaScript code.</p>
-        <span class="icon material-symbols-rounded">explore</span>
-      </li>
-      <li class="suggestions-item">
-        <p class="text">Create a React JS component for the simple todo list app.</p>
-        <span class="icon material-symbols-rounded">code_blocks</span>
-      </li>
-    </ul>
-    
-    <!-- Chats -->
-    <div class="chats-container"></div>
-    
-    <!-- Prompt Input -->
-    <div class="prompt-container">
-      <div class="prompt-wrapper">
-        <form action="#" class="prompt-form">
-          <input type="text" placeholder="Ask Gemini" class="prompt-input" required />
-          <div class="prompt-actions">
-            <!-- File Upload Wrapper -->
-            <div class="file-upload-wrapper">
-              <img src="#" class="file-preview" />
-              <input id="file-input" type="file" accept="image/*, .pdf, .txt, .csv" hidden />
-              <button type="button" class="file-icon material-symbols-rounded">description</button>
-              <button id="cancel-file-btn" type="button" class="material-symbols-rounded">close</button>
-              <button id="add-file-btn" type="button" class="material-symbols-rounded">attach_file</button>
-            </div>
-            
-            <!-- Send Prompt and Stop Response Buttons -->
-            <button id="stop-response-btn" type="button" class="material-symbols-rounded">stop_circle</button>
-            <button id="send-prompt-btn" class="material-symbols-rounded">arrow_upward</button>
-          </div>
-        </form>
-        
-        <!-- Theme and Delete Chats Buttons -->
-        <button id="theme-toggle-btn" class="material-symbols-rounded">light_mode</button>
-        <button id="delete-chats-btn" class="material-symbols-rounded">delete</button>
-      </div>
-      
-      <p class="disclaimer-text">Gemini can make mistakes, so double-check it.</p>
-    </div>
-  </div>
-  
-  <script src="script.js"></script>
-</body>
 
+<!-- 🤖 BOOT SCREEN -->
+<div class="boot-screen">
+  <div class="boot-logo">DTZ NOVA AI</div>
+  <div class="boot-text">INITIALIZING CORE SYSTEMS…</div>
+</div>
+
+<div class="container">
+
+<header class="app-header">
+  <h1 class="heading">DTZ NOVA AI</h1>
+  <p class="sub-heading">
+    Created by <span>DTZ DULA</span> • Powered by <span>DTZ Team</span>
+  </p>
+</header>
+
+<ul class="suggestions">
+  <li class="suggestions-item"><p>Cyber home office under $500</p></li>
+  <li class="suggestions-item"><p>Become elite dev in 2025</p></li>
+  <li class="suggestions-item"><p>Advanced JS debugging</p></li>
+  <li class="suggestions-item"><p>Build React AI tools</p></li>
+</ul>
+
+<div class="chats-container"></div>
+
+<div class="prompt-container">
+  <div class="prompt-wrapper">
+
+    <form class="prompt-form">
+      <input class="prompt-input" placeholder="Ask DTZ NOVA AI…" required />
+      <div class="prompt-actions">
+        <button id="send-prompt-btn" class="material-symbols-rounded">arrow_upward</button>
+      </div>
+    </form>
+
+    <button id="theme-toggle-btn" class="material-symbols-rounded">light_mode</button>
+    <button id="delete-chats-btn" class="material-symbols-rounded">delete</button>
+  </div>
+
+  <p class="disclaimer-text">
+    DTZ NOVA AI is experimental. Verify critical information.
+  </p>
+</div>
+
+</div>
+
+<!-- SCRIPT UNTOUCHED -->
+<script src="script.js"></script>
+
+</body>
 </html>
