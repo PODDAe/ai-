@@ -6,14 +6,9 @@ const fileInput = promptForm.querySelector("#file-input");
 const fileUploadWrapper = promptForm.querySelector(".file-upload-wrapper");
 const themeToggleBtn = document.querySelector("#theme-toggle-btn");
 
-// API Setup
-
-// APK_KEY and API_URL ගන්න දන්නේ නැත්නම් 074185766 මෙ whatsapp number ekat මැසෙජ් එකක් දාන්න ✅✨
-
-
-const API_KEY = "AIzaSyDE2eOCcpU4sShqVb4VdqNHU3lXoLQ0IP0";
-
- const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
+// Copilot API Setup
+const API_KEY = "dew_BFJBP1gi0pxFIdCasrTqXjeZzcmoSpz4SE4FtG9B";
+const API_URL = "https://api.srihub.store/ai/copilot";
 
 let controller, typingInterval;
 const chatHistory = [];
@@ -59,29 +54,37 @@ const generateResponse = async (botMsgDiv) => {
   const textElement = botMsgDiv.querySelector(".message-text");
   controller = new AbortController();
   
-  // Add user message and file data to the chat history
+  // Add user message to the chat history
   chatHistory.push({
     role: "user",
-    parts: [{ text: userData.message }, ...(userData.file.data ? [{ inline_data: (({ fileName, isImage, ...rest }) => rest)(userData.file) }] : [])],
+    content: userData.message
   });
   
   try {
-    // Send the chat history to the API to get a response
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: chatHistory }),
+    // Prepare the prompt (for simplicity, just the current message)
+    const prompt = userData.message;
+    
+    // Build the API URL with query parameters
+    const url = `${API_URL}?prompt=${encodeURIComponent(prompt)}&apikey=${API_KEY}`;
+    
+    // Send the request to the API
+    const response = await fetch(url, {
+      method: "GET",
       signal: controller.signal,
     });
     
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error.message);
+    if (!response.ok) throw new Error(data.error?.message || "API request failed");
     
-    // Process the response text and display with typing effect
-    const responseText = data.candidates[0].content.parts[0].text.replace(/\*\*([^*]+)\*\*/g, "$1").trim();
-    typingEffect(responseText, textElement, botMsgDiv);
+    // Assume the response is in data.result
+    const responseText = data.result || "No response";
+    typingEffect(responseText.trim(), textElement, botMsgDiv);
     
-    chatHistory.push({ role: "model", parts: [{ text: responseText }] });
+    // Add bot response to chat history
+    chatHistory.push({
+      role: "assistant",
+      content: responseText.trim()
+    });
   } catch (error) {
     textElement.textContent = error.name === "AbortError" ? "Response generation stopped." : error.message;
     textElement.style.color = "#d62939";
@@ -105,6 +108,8 @@ const handleFormSubmit = (e) => {
   fileUploadWrapper.classList.remove("file-attached", "img-attached", "active");
   
   // Generate user message HTML with optional file attachment
+  // Note: Copilot API doesn't support file uploads in the same way
+  // We'll keep the UI but won't send files to the API
   const userMsgHTML = `
     <p class="message-text"></p>
     ${userData.file.data ? (userData.file.isImage ? `<img src="data:${userData.file.mime_type};base64,${userData.file.data}" class="img-attachment" />` : `<p class="file-attachment"><span class="material-symbols-rounded">description</span>${userData.file.fileName}</p>`) : ""}
@@ -117,7 +122,7 @@ const handleFormSubmit = (e) => {
   
   setTimeout(() => {
     // Generate bot message HTML and add in the chat container
-    const botMsgHTML = `<img class="avatar" src="gemini.svg" /> <p class="message-text">Just a sec...</p>`;
+    const botMsgHTML = `<img class="avatar" src="copilot.svg" /> <p class="message-text">Just a sec...</p>`;
     const botMsgDiv = createMessageElement(botMsgHTML, "bot-message", "loading");
     chatsContainer.appendChild(botMsgDiv);
     scrollToBottom();
@@ -126,6 +131,7 @@ const handleFormSubmit = (e) => {
 };
 
 // Handle file input change (file upload)
+// Note: This is kept for UI consistency but won't be sent to Copilot API
 fileInput.addEventListener("change", () => {
   const file = fileInput.files[0];
   if (!file) return;
@@ -140,8 +146,15 @@ fileInput.addEventListener("change", () => {
     fileUploadWrapper.querySelector(".file-preview").src = e.target.result;
     fileUploadWrapper.classList.add("active", isImage ? "img-attached" : "file-attached");
     
-    // Store file data in userData obj
+    // Store file data in userData obj (for display only)
     userData.file = { fileName: file.name, data: base64String, mime_type: file.type, isImage };
+    
+    // Show a note that files won't be processed by the API
+    if (!isImage) {
+      userData.message += ` [Attached file: ${file.name} - Note: Copilot API doesn't process uploaded files]`;
+    } else {
+      userData.message += ` [Attached image - Note: Copilot API doesn't process uploaded images]`;
+    }
   };
 });
 
@@ -156,7 +169,10 @@ document.querySelector("#stop-response-btn").addEventListener("click", () => {
   controller?.abort();
   userData.file = {};
   clearInterval(typingInterval);
-  chatsContainer.querySelector(".bot-message.loading").classList.remove("loading");
+  const loadingBotMsg = chatsContainer.querySelector(".bot-message.loading");
+  if (loadingBotMsg) {
+    loadingBotMsg.classList.remove("loading");
+  }
   document.body.classList.remove("bot-responding");
 });
 
@@ -192,3 +208,11 @@ document.addEventListener("click", ({ target }) => {
 // Add event listeners for form submission and file input click
 promptForm.addEventListener("submit", handleFormSubmit);
 promptForm.querySelector("#add-file-btn").addEventListener("click", () => fileInput.click());
+
+// Send prompt when Enter is pressed (without Shift)
+promptInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    promptForm.dispatchEvent(new Event("submit"));
+  }
+});
